@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Norovari — 2-Minute Fleet Risk Check</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cambria&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#1E2761;
+    --midblue:#3D57A8;
+    --ice:#CADCFC;
+    --grey:#555555;
+    --paper:#F7F8FA;
+    --paper-2:#EFF2F6;
+    --line:#D8DEE9;
+    --good:#2E8B57;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper);
+    color:#1a1a1a;
+    font-family:'IBM Plex Sans',sans-serif;
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:520px;margin:0 auto;padding:28px 20px 60px;min-height:100vh;}
+
+  .brandrow{display:flex;align-items:center;gap:10px;margin-bottom:28px;}
+  .brandrow svg{width:26px;height:26px;flex-shrink:0;}
+  .brandrow .word{font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:14px;letter-spacing:.05em;color:var(--navy);}
+
+  .progress{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11.5px;
+    color:var(--grey);
+    letter-spacing:.05em;
+    margin-bottom:10px;
+  }
+  .progress-bar{
+    height:4px;
+    background:var(--line);
+    border-radius:2px;
+    overflow:hidden;
+    margin-bottom:26px;
+  }
+  .progress-fill{
+    height:100%;
+    background:var(--midblue);
+    transition:width 250ms ease;
+  }
+
+  h1{
+    font-family:'Cambria',serif;
+    font-size:clamp(24px,6vw,30px);
+    line-height:1.22;
+    color:var(--navy);
+    margin:0 0 12px;
+  }
+  .sub{color:var(--grey);font-size:15px;margin:0 0 24px;}
+
+  .track-card{
+    display:block;
+    text-align:left;
+    width:100%;
+    background:#fff;
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:18px 18px;
+    margin-bottom:14px;
+    cursor:pointer;
+    transition:border-color 150ms ease;
+  }
+  .track-card:hover{border-color:var(--midblue);}
+  .track-card .tc-title{font-weight:600;font-size:16.5px;color:var(--navy);margin-bottom:4px;}
+  .track-card .tc-desc{font-size:13.5px;color:var(--grey);}
+
+  .q-block{
+    background:#fff;
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:22px 20px;
+    margin-bottom:20px;
+  }
+  .q-text{font-size:17px;font-weight:600;color:#1a1a1a;margin:0 0 18px;line-height:1.35;}
+
+  .opt{
+    display:block;
+    width:100%;
+    text-align:left;
+    background:var(--paper-2);
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:13px 15px;
+    margin-bottom:9px;
+    font-size:14.5px;
+    color:#1a1a1a;
+    cursor:pointer;
+    font-family:inherit;
+  }
+  .opt:hover{border-color:var(--midblue);background:#fff;}
+  .opt:last-child{margin-bottom:0;}
+
+  .result-headline{
+    font-family:'Cambria',serif;
+    font-size:20px;
+    color:var(--navy);
+    margin:0 0 10px;
+  }
+  .result-line{font-size:15px;color:#1a1a1a;margin:0 0 22px;}
+
+  .capture-box{
+    background:#fff;
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:20px;
+    margin-bottom:18px;
+  }
+  .capture-box label{
+    display:block;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    color:var(--grey);
+    letter-spacing:.04em;
+    margin-bottom:5px;
+  }
+  .capture-box input{
+    width:100%;
+    padding:11px 12px;
+    border:1px solid var(--line);
+    border-radius:6px;
+    font-size:14.5px;
+    font-family:inherit;
+    margin-bottom:14px;
+    background:var(--paper-2);
+  }
+  .capture-box input:last-of-type{margin-bottom:0;}
+
+  .btn{
+    display:block;
+    width:100%;
+    border:none;
+    background:var(--navy);
+    color:#fff;
+    font-weight:600;
+    font-size:14.5px;
+    letter-spacing:.02em;
+    padding:15px;
+    border-radius:6px;
+    cursor:pointer;
+    font-family:inherit;
+    margin-top:16px;
+  }
+  .btn:hover{background:var(--midblue);}
+  .btn:disabled{opacity:.5;cursor:default;}
+  .btn.secondary{
+    background:#fff;
+    color:var(--navy);
+    border:1px solid var(--line);
+    margin-top:10px;
+  }
+  .btn.secondary:hover{border-color:var(--midblue);background:var(--paper-2);}
+
+  .referral-box{
+    background:var(--ice);
+    border-radius:8px;
+    padding:18px 20px;
+    margin-top:6px;
+  }
+  .referral-box .rb-title{font-weight:600;font-size:14px;color:var(--navy);margin-bottom:6px;}
+  .referral-box .rb-text{font-size:13.5px;color:#1a1a1a;margin-bottom:14px;}
+
+  .footnote{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10.5px;
+    color:var(--grey);
+    text-align:center;
+    margin-top:40px;
+    line-height:1.8;
+  }
+
+  .confirm{
+    background:#fff;
+    border:1px solid var(--good);
+    border-radius:8px;
+    padding:20px;
+    text-align:center;
+  }
+  .confirm .c-title{font-weight:600;color:var(--good);font-size:15px;margin-bottom:6px;}
+  .confirm .c-text{font-size:14px;color:#1a1a1a;}
+
+  .hidden{display:none;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="brandrow">
+    <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <polygon points="50,6 91,28 91,72 50,94 9,72 9,28" stroke="#1E2761" stroke-width="4" fill="none"/>
+      <circle cx="50" cy="50" r="18" stroke="#1E2761" stroke-width="4" fill="none"/>
+      <rect x="44" y="42" width="12" height="16" rx="2" fill="#1E2761"/>
+    </svg>
+    <span class="word">NOROVARI</span>
+  </div>
+
+  <div id="app"></div>
+
+  <div class="footnote">
+    Norovari (Pty) Ltd &middot; Takes about 2 minutes &middot; No technical detail requested or disclosed
+  </div>
+</div>
+
+<script>
+// ============================================================
+// CONTENT — edit tracks, questions and rewards here.
+// Anything in [[double brackets]] is a placeholder that still
+// needs a real value from Christine before this goes live.
+// ============================================================
+
+const TRACKS = {
+  fleet: {
+    label: 'Fleet Operations',
+    intro: {
+      title: "The 2-Minute Fleet Risk Check",
+      sub: "A quick set of questions on how your fleet handles a tracker going offline — takes about two minutes.",
+    },
+    questions: [
+      {
+        q: "A vehicle on your fleet just went offline — no signal, no explanation. What's your gut reaction?",
+        options: [
+          { t: "We're used to it — happens sometimes, we just wait it out", v: "tolerant" },
+          { t: "Straight to worry — no way to know if it's tampering or a dead battery", v: "concerned" },
+          { t: "We call our tracking provider and hope they have answers", v: "reactive" },
+        ],
+      },
+      {
+        q: "How many vehicles are you currently responsible for?",
+        options: [
+          { t: "1–10 vehicles", v: "1-10" },
+          { t: "11–50 vehicles", v: "11-50" },
+          { t: "51–200 vehicles", v: "51-200" },
+          { t: "200+ vehicles", v: "200+" },
+        ],
+      },
+      {
+        q: "Which best describes your current tracking setup?",
+        options: [
+          { t: "Single tracker per vehicle", v: "single" },
+          { t: "Already running dual/redundant tracking", v: "dual" },
+          { t: "Some vehicles have no tracking at all", v: "gaps" },
+          { t: "A mix of different providers", v: "mixed" },
+        ],
+      },
+      {
+        q: "In the last 12 months, has a tracker gone offline and you couldn't explain why?",
+        options: [
+          { t: "Yes, more than once", v: "frequent" },
+          { t: "Yes, once", v: "once" },
+          { t: "No, not that I know of", v: "no" },
+          { t: "Not sure", v: "unsure" },
+        ],
+      },
+      {
+        q: "If something could hand you a sealed, time-stamped record of exactly what happened the moment a vehicle went offline, who'd need to sign off on trying it?",
+        options: [
+          { t: "Me — I can approve a small pilot myself", v: "self" },
+          { t: "My manager", v: "manager" },
+          { t: "Procurement or a committee", v: "committee" },
+          { t: "Not sure", v: "unsure" },
+        ],
+      },
+      {
+        q: "If a low-cost trial became available, would you be the one exploring it, or would that go through someone else?",
+        options: [
+          { t: "I'd explore it myself", v: "self" },
+          { t: "It would go through someone else", v: "other" },
+          { t: "Depends on the details", v: "depends" },
+        ],
+      },
+    ],
+    resultLine: (answers) => {
+      const incident = answers[3];
+      const setup = answers[2];
+      if (incident === 'frequent') {
+        return "Offline incidents with no explanation are a recurring problem for your fleet — this is exactly the gap a forensic evidence layer is built for.";
+      }
+      if (setup === 'gaps') {
+        return "Some of your fleet has no tracking coverage at all — the exposure there is likely larger than the incidents you can already see.";
+      }
+      if (setup === 'dual') {
+        return "You're already running redundant tracking — the open question for you is less 'will it fail' and more 'what do we actually know when it does.'";
+      }
+      return "Your fleet's exposure to unexplained offline incidents is worth a closer look, even if it hasn't been a frequent problem yet.";
+    },
+  },
+
+  finance: {
+    label: 'Financial Oversight',
+    intro: {
+      title: "The 2-Minute Fleet Exposure Check",
+      sub: "A quick check on what theft-related risk is actually costing your fleet — takes about two minutes.",
+    },
+    questions: [
+      {
+        q: "Roughly what share of your fleet's annual losses trace back to theft or hijacking — vehicles, cargo, or disputed claims?",
+        options: [
+          { t: "None", v: "none" },
+          { t: "Under 10%", v: "under10" },
+          { t: "10–30%", v: "10-30" },
+          { t: "Over 30%", v: "over30" },
+          { t: "Not sure", v: "unsure" },
+        ],
+      },
+      {
+        q: "When a tracker goes offline with no explanation, how does that usually get resolved on the claims side?",
+        options: [
+          { t: "Insurer accepts our account", v: "accepted" },
+          { t: "It gets disputed or delayed", v: "disputed" },
+          { t: "We absorb the loss", v: "absorbed" },
+          { t: "Not sure", v: "unsure" },
+        ],
+      },
+      {
+        q: "Who signs off on new loss-prevention spend for the fleet?",
+        options: [
+          { t: "Me", v: "self" },
+          { t: "A committee or my manager", v: "committee" },
+          { t: "Procurement", v: "procurement" },
+          { t: "Not sure", v: "unsure" },
+        ],
+      },
+      {
+        q: "When does budget get reviewed for tooling like this?",
+        options: [
+          { t: "Fixed annual cycle", v: "annual" },
+          { t: "Ad hoc, as needed", v: "adhoc" },
+          { t: "Not sure", v: "unsure" },
+        ],
+      },
+    ],
+    resultLine: (answers) => {
+      const share = answers[0];
+      const claims = answers[1];
+      if (claims === 'disputed') {
+        return "Disputed claims from unexplained offline incidents are your biggest friction point — that's the specific gap a sealed forensic record is built to close.";
+      }
+      if (share === 'over30' || share === '10-30') {
+        return "Theft-related losses are a meaningful share of your annual exposure — worth a closer look at where the evidence gap is actually costing you.";
+      }
+      return "Your fleet's theft-related exposure is worth quantifying more precisely, even where it hasn't shown up as a large line item yet.";
+    },
+  },
+};
+
+const REWARD_TEXT = "[[REWARD — TBD, e.g. 'priority placement in our first pilot cohort']]";
+const REFERRAL_REWARD_TEXT = "[[REFERRAL REWARD — TBD, e.g. 'an extra month of SaaS on your own pilot']]";
+
+// ============================================================
+// APP LOGIC — shouldn't need to touch below this line to edit copy.
+// ============================================================
+
+const app = document.getElementById('app');
+const urlParams = new URLSearchParams(window.location.search);
+const referredBy = urlParams.get('ref') || '';
+
+let state = {
+  track: null,
+  qIndex: 0,
+  answers: [],
+  ownRefCode: null,
+};
+
+function render(html) {
+  app.innerHTML = html;
+}
+
+function escapeHtml(s) {
+  const d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+function renderLanding() {
+  render(`
+    <h1>What's actually happening when a tracker goes offline?</h1>
+    <p class="sub">Pick the track that fits your role — same 2-minute check either way.</p>
+    <button class="track-card" data-track="fleet">
+      <div class="tc-title">Fleet Operations</div>
+      <div class="tc-desc">You manage the vehicles day to day.</div>
+    </button>
+    <button class="track-card" data-track="finance">
+      <div class="tc-title">Financial Oversight</div>
+      <div class="tc-desc">You own the budget and the cost of losses.</div>
+    </button>
+  `);
+  document.querySelectorAll('.track-card').forEach(btn => {
+    btn.addEventListener('click', () => {
+      state.track = btn.dataset.track;
+      state.qIndex = 0;
+      state.answers = [];
+      renderIntro();
+    });
+  });
+}
+
+function renderIntro() {
+  const t = TRACKS[state.track];
+  render(`
+    <h1>${escapeHtml(t.intro.title)}</h1>
+    <p class="sub">${escapeHtml(t.intro.sub)}</p>
+    <button class="btn" id="startBtn">START →</button>
+    <button class="btn secondary" id="backBtn">← Choose a different track</button>
+  `);
+  document.getElementById('startBtn').addEventListener('click', renderQuestion);
+  document.getElementById('backBtn').addEventListener('click', renderLanding);
+}
+
+function renderQuestion() {
+  const t = TRACKS[state.track];
+  const total = t.questions.length;
+  const q = t.questions[state.qIndex];
+  const pct = Math.round((state.qIndex / total) * 100);
+
+  render(`
+    <div class="progress">QUESTION ${state.qIndex + 1} OF ${total}</div>
+    <div class="progress-bar"><div class="progress-fill" style="width:${pct}%;"></div></div>
+    <div class="q-block">
+      <p class="q-text">${escapeHtml(q.q)}</p>
+      ${q.options.map((o, i) => `<button class="opt" data-i="${i}">${escapeHtml(o.t)}</button>`).join('')}
+    </div>
+  `);
+
+  document.querySelectorAll('.opt').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const opt = q.options[parseInt(btn.dataset.i, 10)];
+      state.answers.push(opt.v);
+      if (state.qIndex + 1 < total) {
+        state.qIndex++;
+        renderQuestion();
+      } else {
+        renderResult();
+      }
+    });
+  });
+}
+
+function makeRefCode() {
+  return (Date.now().toString(36) + Math.random().toString(36).slice(2, 6)).toUpperCase();
+}
+
+function renderResult() {
+  const t = TRACKS[state.track];
+  const line = t.resultLine(state.answers);
+  state.ownRefCode = makeRefCode();
+
+  render(`
+    <div class="progress">DONE</div>
+    <div class="progress-bar"><div class="progress-fill" style="width:100%;"></div></div>
+    <h2 class="result-headline">Your Fleet Profile</h2>
+    <p class="result-line">${escapeHtml(line)}</p>
+
+    <div class="capture-box">
+      <p style="font-size:14px;margin:0 0 14px;color:#1a1a1a;">
+        We're assembling a small pilot cohort. If you'd like your fleet considered, leave your details — we'll follow up directly. ${escapeHtml(REWARD_TEXT)}
+      </p>
+      <label>FULL NAME</label>
+      <input type="text" id="cName" placeholder="Your name">
+      <label>COMPANY</label>
+      <input type="text" id="cCompany" placeholder="Company name">
+      <label>BEST CONTACT NUMBER OR EMAIL</label>
+      <input type="text" id="cContact" placeholder="WhatsApp number or email">
+      <button class="btn" id="submitBtn">SUBMIT FOR REVIEW</button>
+    </div>
+
+    <div class="referral-box">
+      <div class="rb-title">Know someone else who owns this?</div>
+      <div class="rb-text">Share your link below — if their fleet joins the pilot, we'll add ${escapeHtml(REFERRAL_REWARD_TEXT)} to your own trial.</div>
+      <button class="btn secondary" id="copyLinkBtn">COPY YOUR SHARE LINK</button>
+    </div>
+  `);
+
+  document.getElementById('submitBtn').addEventListener('click', submitLead);
+
+  document.getElementById('copyLinkBtn').addEventListener('click', () => {
+    const shareUrl = window.location.origin + window.location.pathname + '?ref=' + state.ownRefCode;
+    navigator.clipboard.writeText(shareUrl).then(() => {
+      document.getElementById('copyLinkBtn').textContent = 'LINK COPIED';
+    }).catch(() => {
+      prompt('Copy this link:', shareUrl);
+    });
+  });
+}
+
+async function submitLead() {
+  const name = document.getElementById('cName').value.trim();
+  const company = document.getElementById('cCompany').value.trim();
+  const contact = document.getElementById('cContact').value.trim();
+  const btn = document.getElementById('submitBtn');
+
+  if (!name || !contact) {
+    alert('Please add at least your name and a way to reach you.');
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'SUBMITTING...';
+
+  try {
+    await fetch('/api/submit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        track: state.track,
+        name, company, contact,
+        answers: state.answers,
+        ownRefCode: state.ownRefCode,
+        referredBy: referredBy,
+        timestamp: new Date().toISOString(),
+      }),
+    });
+  } catch (e) {
+    // fall through to confirmation regardless — don't block the visitor
+    // over a network hiccup; worst case the row is missing and needs a
+    // manual follow-up.
+  }
+
+  render(`
+    <div class="confirm">
+      <div class="c-title">Submitted</div>
+      <div class="c-text">Thanks, ${escapeHtml(name)} — we'll be in touch about your pilot request within a few days.</div>
+    </div>
+    <div class="referral-box" style="margin-top:16px;">
+      <div class="rb-title">Still want to share it?</div>
+      <div class="rb-text">Your link is below — if their fleet joins the pilot, we'll add ${escapeHtml(REFERRAL_REWARD_TEXT)} to your own trial.</div>
+      <button class="btn secondary" id="copyLinkBtn2">COPY YOUR SHARE LINK</button>
+    </div>
+  `);
+  document.getElementById('copyLinkBtn2').addEventListener('click', () => {
+    const shareUrl = window.location.origin + window.location.pathname + '?ref=' + state.ownRefCode;
+    navigator.clipboard.writeText(shareUrl).then(() => {
+      document.getElementById('copyLinkBtn2').textContent = 'LINK COPIED';
+    }).catch(() => {
+      prompt('Copy this link:', shareUrl);
+    });
+  });
+}
+
+renderLanding();
+</script>
+</body>
+</html>
